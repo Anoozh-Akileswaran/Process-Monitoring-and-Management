@@ -1,0 +1,6 @@
+Packages used
+------------------------------------------------------------------
+sudo apt install pkg-config
+sudo apt-get install gnuplot
+
+
