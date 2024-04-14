@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+//find /usr/bin /usr/local/bin -iname '*partial_name*'
+
 int main() {
     char program[100];
     
