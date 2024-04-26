@@ -1,65 +1,90 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 // Function to read total CPU time
-unsigned long long readTotalCPUTime() {
-    FILE* file = fopen("/proc/stat", "r");
-    if (!file) {
-        perror("Failed to open /proc/stat");
-        return 0;
+// Function to read total CPU usage from /proc/stat
+// Function to get total CPU usage using sar -u command
+double getTotalCpuUsage() {
+    FILE *pipe = popen("sar -u 1 1 | grep 'Average:'", "r");
+    if (!pipe) {
+        perror("Error opening pipe");
+        exit(EXIT_FAILURE);
     }
 
-    char buffer[256];
-    unsigned long long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
-    unsigned long long total;
+    char line[256];
+    fgets(line, sizeof(line), pipe);  // Read the "Average:" line
 
-    fgets(buffer, sizeof(buffer), file);
-    sscanf(buffer, "cpu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu",
-           &user, &nice, &system, &idle, &iowait, &irq, &softirq, &steal, &guest, &guest_nice);
+    pclose(pipe);
 
-    total = user + nice + system + idle + iowait + irq + softirq + steal;
-    fclose(file);
+    printf("Debug: Read line: %s\n", line);  // Debugging print
 
-    return total;
+    // Parse the line to extract CPU usage
+    char label[10];
+    double user, nice, system, iowait, steal, idle;
+
+    if (sscanf(line, "%s %*s %lf %lf %lf %lf %lf %lf", 
+               label, &user, &nice, &system, &iowait, &steal, &idle) != 7) {
+        perror("Error parsing sar output");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("%f\n",idle);
+    // Calculate total CPU usage (excluding idle time)
+    double totalCpuUsage = (user + nice + system + iowait + steal) / 100.0;
+
+    return 100-idle;
 }
+
+
+unsigned long long getusedMemory() {
 // Function to read memory info
-unsigned long long readMemoryInfo(const char* field) {
-    FILE* file = fopen("/proc/meminfo", "r");
+ FILE *file = fopen("/proc/meminfo", "r");
     if (!file) {
-        perror("Failed to open /proc/meminfo");
-        return 0;
+        perror("Error opening /proc/meminfo");
+        exit(EXIT_FAILURE);
     }
 
-    char buffer[256];
-    unsigned long long value = 0;
+    char line[256];
+    unsigned long long memTotal = 0, memAvailable = 0;
 
-    while (fgets(buffer, sizeof(buffer), file)) {
-        if (strstr(buffer, field)) {
-            sscanf(buffer, "%*s %llu", &value);
+    // Read lines until both MemTotal and MemAvailable are found
+    while (fgets(line, sizeof(line), file)) {
+        if (strncmp(line, "MemTotal:", 9) == 0) {
+            sscanf(line + 9, "%llu", &memTotal);
+        } else if (strncmp(line, "MemAvailable:", 13) == 0) {
+            sscanf(line + 13, "%llu", &memAvailable);
+        }
+
+        if (memTotal && memAvailable) {
             break;
         }
     }
 
     fclose(file);
-    return value;
+
+    // Calculate available memory
+    unsigned long long usedMemory = memTotal - memAvailable;
+
+    return usedMemory;
 }
 
-/*
 int main() {
-    unsigned long long totalMem, freeMem, totalMemUsed;
+    unsigned long long totalMemUsed;
 
-    totalMem = readMemoryInfo("MemTotal:");
-    freeMem = readMemoryInfo("MemFree:");
+    totalMemUsed = getusedMemory();
 
-    totalMemUsed = totalMem - freeMem;
-
-    printf("Total Memory: %llu kB\n", totalMem);
+   
     printf("Total Memory Used: %llu kB\n", totalMemUsed);
 
-    return 0;
+    double totalCpuUsage = getTotalCpuUsage();
+    printf("Total CPU Usage: %.2f%%\n", totalCpuUsage); 
+
+
+   return 0;
 }
-*/
+
 
 
 

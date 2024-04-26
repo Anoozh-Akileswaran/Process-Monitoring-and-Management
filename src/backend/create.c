@@ -1,39 +1,62 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <dirent.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-//find /usr/bin /usr/local/bin -iname '*partial_name*'
+bool searchExecutable(const char *partialName, const char *directoryPath) {
+    DIR *dir;
+    struct dirent *entry;
+
+    // Open the directory
+    dir = opendir(directoryPath);
+    if (dir == NULL) {
+        perror("opendir");
+        exit(EXIT_FAILURE);
+    }
+
+    // Loop through directory entries
+    while ((entry = readdir(dir)) != NULL) {
+        if (strstr(entry->d_name, partialName) != NULL) {
+            printf("%s/%s\n", directoryPath, entry->d_name);
+	    printf("%s\n",entry->d_name);
+            int status = system(entry->d_name);
+	    if(status == -1){
+		return false;
+	    }else{
+		printf("Command executed\n");
+		return true; 
+		break;
+	    }
+        }
+    }
+
+    // Close the directory
+    closedir(dir);
+    return false;
+}
 
 int main() {
-    char program[100];
+    char partialName[256];  // Maximum length for the partial name
+    const char *directories[] = {"/usr/bin", "/usr/local/bin"};  // Directories to search
+
+    // Get the partial name from the user
+    printf("Enter the partial name: ");
+    fgets(partialName, sizeof(partialName), stdin);
     
-    // Prompt the user to enter the program name
-    printf("Enter the program name: ");
-    scanf("%s", program);
+    // Remove newline character from fgets
+    size_t len = strlen(partialName);
+    if (len > 0 && partialName[len - 1] == '\n') {
+        partialName[len - 1] = '\0';
+    }
 
-    // Fork a child process
-    pid_t pid = fork();
+    // Search for executables in each directory
+    for (size_t i = 0; i < sizeof(directories) / sizeof(directories[0]); ++i) {
+     bool executed = searchExecutable(partialName, directories[i]);
+     if(executed==true){
+        break;
+     }
 
-    if (pid == -1) {
-        // Fork failed
-        perror("fork");
-        return 1;
-    } else if (pid == 0) {
-        // Child process
-        // Execute the specified program
-        if (execlp(program, program, NULL) == -1) {
-            perror("execvp");
-            return 1;
-        }
-    } else {
-        // Parent process
-        // Wait for the child process to finish
-        int status;
-        waitpid(pid, &status, 0);
-        printf("Child process finished.\n");
     }
 
     return 0;
