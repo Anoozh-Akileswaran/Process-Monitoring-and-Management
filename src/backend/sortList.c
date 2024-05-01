@@ -4,7 +4,7 @@
 #include <ProcessList.h>
 #include <string.h>
 #include "monitor_tool.h"
-
+#include <stdbool>
 
 // Function to convert CPU time in hh:mm:ss format to seconds
 int timeToSeconds(const char *timeStr) {
@@ -89,43 +89,9 @@ void sortProcessList(ProcessList *list, int (*compareFunc)(const void *, const v
     qsort(list->processes, list->size, sizeof(Process), compareFunc);
 }
 
-int main() {
-    // Initialize a sample ProcessList
-    ProcessList list;
-    list.size = 3;
-    list.processes = malloc(list.size * sizeof(Process));
-
-    // Sample processes with CPU and RAM usage
-    list.processes[0] = (Process){.pid = 1, .name = "process1", .cpuUsage = 10.5, .ramUsage = 200.0};
-    list.processes[1] = (Process){.pid = 2, .name = "process2", .cpuUsage = 5.0, .ramUsage = 150.0};
-    list.processes[2] = (Process){.pid = 3, .name = "process3", .cpuUsage = 15.0, .ramUsage = 250.0};
-
-    // Sort by CPU usage
-    sortProcessList(&list, compareByCpu);
-    printf("Sorted by CPU usage:\n");
-    for (size_t i = 0; i < list.size; ++i) {
-        printf("PID: %d, Name: %s, CPU Usage: %.2f, RAM Usage: %.2f\n",
-               list.processes[i].pid, list.processes[i].name,
-               list.processes[i].cpuUsage, list.processes[i].ramUsage);
-    }
-
-    // Sort by RAM usage
-    sortProcessList(&list, compareByRam);
-    printf("\nSorted by RAM usage:\n");
-    for (size_t i = 0; i < list.size; ++i) {
-        printf("PID: %d, Name: %s, CPU Usage: %.2f, RAM Usage: %.2f\n",
-               list.processes[i].pid, list.processes[i].name,
-               list.processes[i].cpuUsage, list.processes[i].ramUsage);
-    }
-
-    // Free allocated memory
-    free(list.processes);
-
-    return 0;
-}
 
 
-void sortList(char* metric, ProcessList *processList){
+bool sortList(char* metric){
    switch(metric){
 
 	case "PID":
@@ -153,6 +119,7 @@ void sortList(char* metric, ProcessList *processList){
            break;
 	
    }
+  return true
 
 
 

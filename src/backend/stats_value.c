@@ -2,6 +2,68 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include "plot_tool.h"
+
+#define PATH_MAX 256
+
+
+// Function to read total RAM size from /proc/meminfo
+long readTotalRAM() {
+    FILE *file = fopen("/proc/meminfo", "r");
+    if (file == NULL) {
+        perror("Error opening /proc/meminfo");
+        exit(EXIT_FAILURE);
+    }
+
+    char line[PATH_MAX];
+    long totalRAM = 0;
+
+    // Find the line with "MemTotal" information
+    while (fgets(line, PATH_MAX, file) != NULL) {
+        if (sscanf(line, "MemTotal: %ld kB", &totalRAM) == 1) {
+            break;
+        }
+    }
+
+    fclose(file);
+
+    // Convert total RAM from kB to bytes
+    return totalRAM * 1024;
+}
+
+// Function to read free RAM size from /proc/meminfo
+long readFreeRAM() {
+    FILE *file = fopen("/proc/meminfo", "r");
+    if (file == NULL) {
+        perror("Error opening /proc/meminfo");
+        exit(EXIT_FAILURE);
+    }
+
+    char line[PATH_MAX];
+    long freeRAM = 0;
+
+    // Find the line with "MemFree" information
+    while (fgets(line, PATH_MAX, file) != NULL) {
+        if (sscanf(line, "MemFree: %ld kB", &freeRAM) == 1) {
+            break;
+        }
+    }
+
+    fclose(file);
+
+    // Convert free RAM from kB to bytes
+    return freeRAM * 1024;
+} 
+
+
+
+
+
+
+
+
+
 
 // Function to read total CPU time
 // Function to read total CPU usage from /proc/stat
@@ -70,19 +132,25 @@ unsigned long long getusedMemory() {
     return usedMemory;
 }
 
-int main() {
-    unsigned long long totalMemUsed;
-
-    totalMemUsed = getusedMemory();
-
-   
-    printf("Total Memory Used: %llu kB\n", totalMemUsed);
-
-    double totalCpuUsage = getTotalCpuUsage();
-    printf("Total CPU Usage: %.2f%%\n", totalCpuUsage); 
 
 
-   return 0;
+void getTotal() {
+    long totalRAM = readTotalRAM();
+    long freeRAM = readFreeRAM();
+    long absRam = (long) totalRAM - freeRAM;
+
+    total_ram = ((long) usedRAM / absRam) * 100;
+
+    
+    printf("Total RAM: %ld bytes\n", totalRAM);
+    printf("Used RAM: %ld bytes\n", usedRAM);
+    printf("RAM Usage Percentage: %.2f%%\n", ramUsagePercentage);
+
+    total_cpu = getTotalCpuUsage();
+    printf("Total CPU Usage: %.2f%%\n", total_cpu); 
+
+
+   return true;
 }
 
 

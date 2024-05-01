@@ -1,14 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-
-int main() {
+#include <stdbool>
+bool terminate(int pid) {
     // PID of the process to be terminated
-    pid_t pid;
-    
-    // Get PID from user input
-    printf("Enter PID of the process to terminate: ");
-    scanf("%d", &pid);
 
     // Send termination signal to the process
     if (kill(pid, SIGKILL) == 0) {

@@ -36,28 +36,29 @@ bool searchExecutable(const char *partialName, const char *directoryPath) {
     return false;
 }
 
-int main() {
+bool create(char* name) {
     char partialName[256];  // Maximum length for the partial name
     const char *directories[] = {"/usr/bin", "/usr/local/bin"};  // Directories to search
 
     // Get the partial name from the user
-    printf("Enter the partial name: ");
-    fgets(partialName, sizeof(partialName), stdin);
+    //printf("Enter the partial name: ");
+    //fgets(partialName, sizeof(partialName), stdin);
     
     // Remove newline character from fgets
-    size_t len = strlen(partialName);
-    if (len > 0 && partialName[len - 1] == '\n') {
-        partialName[len - 1] = '\0';
+    size_t len = strlen(name);
+    if (len > 0 && name[len - 1] == '\n') {
+        name[len - 1] = '\0';
     }
-
+    bool executed;
     // Search for executables in each directory
     for (size_t i = 0; i < sizeof(directories) / sizeof(directories[0]); ++i) {
-     bool executed = searchExecutable(partialName, directories[i]);
+        executed = searchExecutable(name, directories[i]);
      if(executed==true){
-        break;
+        return true;
      }
 
     }
 
-    return 0;
+    return false;
 }
+
