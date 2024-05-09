@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-bool searchExecutable(const char *partialName, const char *directoryPath) {
+bool searchExecutable(const char *partialName, const char *directoryPath, char* parameter) {
     DIR *dir;
     struct dirent *entry;
 
@@ -20,7 +20,7 @@ bool searchExecutable(const char *partialName, const char *directoryPath) {
         if (strstr(entry->d_name, partialName) != NULL) {
             printf("%s/%s\n", directoryPath, entry->d_name);
 	    printf("%s\n",entry->d_name);
-            int status = systementry->d_name);
+            int status = system(strcat(strcat(entry->d_name, " "), parameter));
 	    if(status == -1){
 		return false;
 	    }else{
@@ -36,7 +36,7 @@ bool searchExecutable(const char *partialName, const char *directoryPath) {
     return false;
 }
 
-bool create(char* name) {
+bool create(char* name, char* parameter) {
     char partialName[256];  // Maximum length for the partial name
     const char *directories[] = {"/usr/bin", "/usr/local/bin"};  // Directories to search
 
@@ -52,7 +52,7 @@ bool create(char* name) {
     bool executed;
     // Search for executables in each directory
     for (size_t i = 0; i < sizeof(directories) / sizeof(directories[0]); ++i) {
-        executed = searchExecutable(name, directories[i]);
+        executed = searchExecutable(name, directories[i], parameter);
      if(executed==true){
         return true;
      }
@@ -62,4 +62,13 @@ bool create(char* name) {
     return false;
 }
 
+int main(int argc, char *argv[]){
 
+  char* process = argv[1];
+  char* parameter = argv[2];
+  create(process, parameter);
+
+
+
+
+}

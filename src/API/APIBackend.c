@@ -96,7 +96,7 @@ struct ProcessList ListReadWrite(char* command){
 }
 
 
-
+//Can be used to read total values with "GTM" or "GTC" 
  double readTotal(char* command){
     pthread_mutex_lock(&mutex_API2);
  
@@ -134,7 +134,7 @@ void* loop_thread(void *arg){
         while (1){
     	
     		pthread_mutex_lock(&mutex_API2);
-    		void getTotal();
+    		void readTotal("U");
     		pthread_mutex_unlock(&mutex_API2)
     		ListReadWrite("W");
     		sleep(3)
@@ -151,7 +151,7 @@ void* loop_thread(void *arg){
 void loopOver(){
   
     pthread_t thread_API;
-    if (pthread_create(&thread_API, NULL, loopOver, NULL) != 0){
+    if (pthread_create(&thread_API, NULL, loop_thread, NULL) != 0){
     
     	 fprintf(stderr, "Error creating thread\n");
          return EXIT_FAILURE;
