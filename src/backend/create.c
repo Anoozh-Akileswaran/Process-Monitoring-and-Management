@@ -3,6 +3,8 @@
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <sys/resource.h>
+#include "MainList.h"
 
 bool searchExecutable(const char *partialName, const char *directoryPath) {
     DIR *dir;
@@ -20,7 +22,7 @@ bool searchExecutable(const char *partialName, const char *directoryPath) {
         if (strstr(entry->d_name, partialName) != NULL) {
             printf("%s/%s\n", directoryPath, entry->d_name);
 	    printf("%s\n",entry->d_name);
-            int status = systementry->d_name);
+            int status = system (entry->d_name);
 	    if(status == -1){
 		return false;
 	    }else{

@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include "Process.h"
 #include "ProcessList.h"
+#include "MainList.h"
 
 #define MAX_NAME_LENGTH 256
 #define MAX_PROCESSES 2048
@@ -15,8 +16,8 @@
 
 
 int range = 20;
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_gp2 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_gp2_2 = PTHREAD_MUTEX_INITIALIZER;
 
 
 
@@ -58,7 +59,7 @@ void getUsage(struct Process *process) {
         fgets(line, sizeof(line), pipe);
     }
     
-     pthread_mutex_lock(&mutex);
+     pthread_mutex_lock(&mutex_gp2);
     if (fgets(line, sizeof(line), pipe) != NULL) {
         // Parse the line to get CPU and memory usage
         printf(line);
@@ -72,12 +73,12 @@ void getUsage(struct Process *process) {
     }
     
      pclose(pipe);
-     pthread_mutex_unlock(&mutex);
+     pthread_mutex_unlock(&mutex_gp2);
 }
 
 // Function to print process information
 void printProcessInfo(const struct Process *process) {
-    pthread_mutex_lock(&mutex2);
+    pthread_mutex_lock(&mutex_gp2_2);
     printf("PID: %d\n", process->pid);
     printf("Name: %s\n", process->name);
     printf("CPU Usage: %.2f%%\n", process->cpuUsage);
@@ -86,7 +87,7 @@ void printProcessInfo(const struct Process *process) {
     printf("Memory Usage_percentage: %f %\n", process->memUsagePercentage);
     printf("CPU-Usage Time: %s\n", process->time_cpu);
     printf("\n");
-    pthread_mutex_unlock(&mutex2);
+    pthread_mutex_unlock(&mutex_gp2_2);
    
 }
 
@@ -129,3 +130,4 @@ void updateList() {
      
     
 }
+

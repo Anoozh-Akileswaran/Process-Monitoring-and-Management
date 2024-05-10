@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <Process.h>
-#include <ProcessList.h>
+#include "Process.h"
+#include "ProcessList.h"
 #include <string.h>
 #include "monitor_tool.h"
-#include <stdbool>
+#include <stdbool.h>
+#include "MainList.h"
 
 // Function to convert CPU time in hh:mm:ss format to seconds
 int timeToSeconds(const char *timeStr) {
@@ -20,8 +21,8 @@ int timeToSeconds(const char *timeStr) {
 
 // Custom coTmparison functions for qsort
 int compareByPID(const void *a, const void *b){
-    const Process *processA = (const Process *)a;
-    const Process *processB = (const Process *)b;
+    const struct Process *processA = (const struct Process *)a;
+    const struct Process *processB = (const struct Process *)b;
     
     if (processA->pid < processB->pid) return 1;
     if (processA->pid > processB->pid) return -1;
@@ -32,8 +33,8 @@ int compareByPID(const void *a, const void *b){
 
 
 int compareByCpu(const void *a, const void *b) {
-    const Process *processA = (const Process *)a;
-    const Process *processB = (const Process *)b;
+    const struct Process *processA = (const struct Process *)a;
+    const struct Process *processB = (const struct Process *)b;
 
     if (processA->cpuUsage < processB->cpuUsage) return 1;
     if (processA->cpuUsage > processB->cpuUsage) return -1;
@@ -41,8 +42,8 @@ int compareByCpu(const void *a, const void *b) {
 }
 
 int compareByRam(const void *a, const void *b) {
-    const Process *processA = (const Process *)a;
-    const Process *processB = (const Process *)b;
+    const struct Process *processA = (const struct Process *)a;
+    const struct Process *processB = (const struct Process *)b;
 
     if (processA->memUsage < processB->memUsage) return 1;
     if (processA->memUsage > processB->memUsage) return -1;
@@ -50,28 +51,28 @@ int compareByRam(const void *a, const void *b) {
 }
 
 int compareByRam_percentage(const void *a, const void *b) {
-    const Process *processA = (const Process *)a;
-    const Process *processB = (const Process *)b;
-
-    if (processA->memo_% < processB->memUsage) return 1;
-    if (processA->memo_% > processB->memUsage) return -1;
+    const struct Process *processA = (const struct Process *)a;
+    const struct Process *processB = (const struct Process *)b;
+    if (processA->memUsagePercentage < processB->memUsagePercentage) return 1;
+    if (processA->memUsagePercentage > processB->memUsagePercentage) return -1;
     return 0;
 }
 
 int compareByPriority(const void *a, const void *b){
-    const Process *processA = (const Process *)a;
-    const Process *processB = (const Process *)b;
+    const struct Process *processA = (const struct Process *)a;
+    const struct Process *processB = (const struct Process *)b;
     
-    if (processA->Priority < processB->Priority) return 1;
-    if (processA->Priority > processB->Priority) return -1;
+    if (processA->priority < processB->priority) return 1;
+    if (processA->priority > processB->priority) return -1;
     return 0;
 
 
 }
 
+/*
 int compareByCPUTime(const void *a, const void *b){
-    const Process *processA = (const Process *)a;
-    const Process *processB = (const Process *)b;
+    const struct Process *processA = (const struct Process *)a;
+    const struct Process *processB = (const struct Process *)b;
     
     if (timeToSeconds(processA->time_cpu) < timeToSeconds(processB->time_cpu)) return 1;
     if (timeToSeconds(processA->time_cpu) > timeToSeconds(processB->time_cpu)) return -1;
@@ -79,47 +80,47 @@ int compareByCPUTime(const void *a, const void *b){
 
 
 }
-
+*/
 
 
 
 
 // Sort function for ProcessList
-void sortProcessList(ProcessList *list, int (*compareFunc)(const void *, const void *)) {
-    qsort(list->processes, list->size, sizeof(Process), compareFunc);
+void sortProcessList(struct ProcessList *list, int (*compareFunc)(const void *, const void *)) {
+    qsort(list->processes, list->numProcesses, sizeof(struct Process), compareFunc);
 }
 
 
 
-bool sortList(char* metric){
+bool sortList(int metric){
    switch(metric){
 
-	case "PID":
+	case 1:
 	     sortProcessList(&processList, compareByPID);
 	   break;
 
-	case "CPUusage":
+	case 2:
              sortProcessList(&processList, compareByCpu);
            break;
 	
-	case "Ramusage":
-             sortProcessList(&processList, compareByRAM);
+	case 3:
+             sortProcessList(&processList, compareByRam);
            break;
 
-	case "RAMusage_percentage":
-             sortProcessList(&processList, compareByRAM_percentage);
+	case 4:
+             sortProcessList(&processList, compareByRam_percentage);
            break;
 
-	case "Priority":
+	case 5:
              sortProcessList(&processList, compareByPriority);
            break;
 
-	case "CPUTime":
-             sortProcessList(&processList, compareByCPUTime);
+	case 6:
+             //sortProcessList(&processList, compareByCPUTime);
            break;
 	
    }
-  return true
+  return true;
 
 
 

@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "MainList.h"
 
 bool searchExecutable(const char *partialName, const char *directoryPath, char* parameter) {
     DIR *dir;

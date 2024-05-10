@@ -1,0 +1,1 @@
+gcc -o APIBackend.o APIBackend.c create.c getProcess2.c MainList.c MainTotalValues.c pause_resume.c sortList.c stats_value.c terminate.c

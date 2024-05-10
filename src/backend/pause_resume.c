@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <stdbool>
-
+#include <stdbool.h>
+#include "MainList.h"
 
 bool pause_resume(int choice, int pid) {
 

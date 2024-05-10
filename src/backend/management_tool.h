@@ -1,5 +1,6 @@
 #ifndef MANAGEMENT_TOOL_H
 #define MANAGEMENT_TOOL_H
+#include <stdbool.h>
 
 //creates a new process basesd on the input and in case of failure->return false
 bool create(char* name);
@@ -8,7 +9,7 @@ bool create(char* name);
 bool terminate(int PID);
 
 //pause and resume a thread
-int pause_resume(int choice) 
+bool pause_resume(int choice, int pid); 
 
 
 

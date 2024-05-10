@@ -11,7 +11,7 @@
 #include "plot_tool.h"
 #include "API.h"
 
-
+#include "MainList.h"
 
 //Gets the total cpu
 void* total_cpu(){

@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <stdbool>
+#include <stdbool.h>
+#include "MainList.h"
 bool terminate(int pid) {
     // PID of the process to be terminated
 

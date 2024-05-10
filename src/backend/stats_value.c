@@ -4,56 +4,62 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "plot_tool.h"
+#include "MainList.h"
+#include "MainTotalValues.h"
+
 
 #define PATH_MAX 256
-
+#define MAX_BUFFER 256
 
 // Function to read total RAM size from /proc/meminfo
-long readTotalRAM() {
-    FILE *file = fopen("/proc/meminfo", "r");
-    if (file == NULL) {
-        perror("Error opening /proc/meminfo");
+int readTotalRAM() {
+  FILE *fp;
+    char buffer[MAX_BUFFER];
+    int total_memory;
+
+    // Open a pipe to execute the free command
+    fp = popen("free -m | awk 'NR==2 {print $2}'", "r");
+    if (fp == NULL) {
+        perror("popen");
         exit(EXIT_FAILURE);
     }
 
-    char line[PATH_MAX];
-    long totalRAM = 0;
-
-    // Find the line with "MemTotal" information
-    while (fgets(line, PATH_MAX, file) != NULL) {
-        if (sscanf(line, "MemTotal: %ld kB", &totalRAM) == 1) {
-            break;
-        }
+    // Read the output of free
+    if (fgets(buffer, MAX_BUFFER, fp) != NULL) {
+        // Parse total memory value
+        sscanf(buffer, "%d", &total_memory);
     }
 
-    fclose(file);
+    // Close the pipe
+    pclose(fp);
 
-    // Convert total RAM from kB to bytes
-    return totalRAM * 1024;
+    return total_memory;
 }
 
 // Function to read free RAM size from /proc/meminfo
-long readFreeRAM() {
-    FILE *file = fopen("/proc/meminfo", "r");
-    if (file == NULL) {
-        perror("Error opening /proc/meminfo");
+int readUsedRAM() {
+    FILE *fp;
+    char buffer[MAX_BUFFER];
+    int used_memory;
+
+    // Open a pipe to execute the free command
+    fp = popen("free -m | awk 'NR==2 {print $3}'", "r");
+    if (fp == NULL) {
+        perror("popen");
         exit(EXIT_FAILURE);
     }
 
-    char line[PATH_MAX];
-    long freeRAM = 0;
-
-    // Find the line with "MemFree" information
-    while (fgets(line, PATH_MAX, file) != NULL) {
-        if (sscanf(line, "MemFree: %ld kB", &freeRAM) == 1) {
-            break;
-        }
+    // Read the output of free
+    if (fgets(buffer, MAX_BUFFER, fp) != NULL) {
+        // Parse used memory value
+        sscanf(buffer, "%d", &used_memory);
     }
 
-    fclose(file);
+    // Close the pipe
+    pclose(fp);
 
-    // Convert free RAM from kB to bytes
-    return freeRAM * 1024;
+    return used_memory;
+
 } 
 
 
@@ -135,26 +141,28 @@ unsigned long long getusedMemory() {
 
 
 void getTotal() {
+
+printf("I am here4\n");
     long totalRAM = readTotalRAM();
-    long freeRAM = readFreeRAM();
-    long absRam = (long) totalRAM - freeRAM;
+    int usedRam = readUsedRAM();
+  
 
-    total_ram = ((long) usedRAM / absRam) * 100;
+    double total_used_ram =  ((double)  usedRam / totalRAM) * 100;
 
-    
-    printf("Total RAM: %ld bytes\n", totalRAM);
-    printf("Used RAM: %ld bytes\n", usedRAM);
-    printf("RAM Usage Percentage: %.2f%%\n", ramUsagePercentage);
+    total_ram = total_used_ram;
+    total_Mem = usedRam;
+    printf("Total RAM_used: %ld MB\n", total_Mem);
+    printf("Total RAM_existing: %ld MB\n", totalRAM);
+    printf("RAM Usage Percentage: %.2f%%\n", total_ram);
 
     total_cpu = getTotalCpuUsage();
-    printf("Total CPU Usage: %.2f%%\n", total_cpu); 
+    printf("Total CPU Usage: %f\n", total_cpu); 
+    printf("I am here\n");
 
 
-   return true;
+
+
 }
-
-
-
 
 
 
